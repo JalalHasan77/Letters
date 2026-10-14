@@ -9,9 +9,10 @@ calculating each team's chance of winning.
 |---|-------|-------|-------|
 | 1 | Hexagons (original rectangle) | 25 | Red left ↔ right, Green top ↕ bottom |
 | 2 | Hexagons (diamond) | 25 | Red slanted sides, Green top ↕ bottom |
-| 3 | Octagons & Squares | 25 | Pink top ↕ bottom, Green left ↔ right |
-| 4 | Circles & Bars (bars are cells) | 101 | Green top ↕ bottom, Pink left ↔ right |
-| 5 | Circles Only (bars are links) | 25 | Green top ↕ bottom, Pink left ↔ right |
+| 3 | Octagons & Squares | 25 | Red top ↕ bottom, Green left ↔ right |
+| 4 | Circles & Bars (bars are cells) | 101 | Green top ↕ bottom, Red left ↔ right |
+| 5 | Circles Only (bars are links) | 25 | Green top ↕ bottom, Red left ↔ right |
+| 6 | Circles Only (No Bars) | 25 | Green top ↕ bottom, Red left ↔ right |
 
 ## Windows
 
@@ -30,7 +31,7 @@ calculating each team's chance of winning.
    - If two cells share a label, press it again to move to the other one.
    - On board 4 type a bar number (e.g. 4 then 7 for bar 47).
 2. **Turn to Red / Turn to Green** (keyboard keys, panel buttons, **F1/Enter** = Red-side team,
-   **F2/Space** = Green team). On boards whose other team is Pink the key says **Turn to Pink**.
+   **F2/Space** = Green team).
 3. **De-select** (key, button, or **Esc**) cancels the selection.
 
 Other controls:
@@ -46,7 +47,7 @@ Other controls:
 - **Letters font** chooses the font for the letters on the board and keyboard; **Bold** for heavier letters.
   The default is the **Al-Arabiya** font when it is installed (any font whose name contains "Arabiya"),
   otherwise Tahoma. The letter ه is always shown as **هـ** so it is not mistaken for a zero or a circle.
-- Boards 1, 2, 3 and 5: every **New game** (or board change) draws 25 labels at random from the
+- Boards 1, 2, 3, 5 and 6: every **New game** (or board change) draws 25 labels at random from the
   28 Arabic letters plus the digits 1–9, so each game has a different mix and no label repeats.
   Type a digit (or click it on the keyboard) to select a digit cell.
 - Board 4: circles carry letters and the 76 bars carry the numbers 1–76 in reading order.
@@ -57,6 +58,10 @@ Other controls:
 - With **Exact count** ticked, boards with 28 cells or fewer are solved exactly by checking
   every way the cells can be split (2^25 = 33.5 million for 25 cells; a few seconds).
 - Board 4 (101 cells) is simulated with the number of games you choose.
+
+Results with equal teams: board 1 → Red 53.46 % / Green 46.54 %; boards 2, 3, 5 → 50 / 50, always a winner;
+board 4 → about 11.9 % each, 76.2 % no winner; board 6 → 21.43 % each, **57.14 % no winner**
+(touching circles meet only diagonally, so a single lost circle can block both teams).
 
 Expected results with equal teams: board 1 → Red 53.46 % / Green 46.54 %;
 boards 2, 3, 5 → 50 % / 50 %; board 4 → about 11.9 % each and 76.2 % no winner.
@@ -77,7 +82,7 @@ Visual Studio Installer → Modify → Individual components → tick
 ## Files
 
 - `Models.vb` – cells, teams, links and the board container
-- `BoardFactory.vb` – geometry and neighbours for the five boards
+- `BoardFactory.vb` – geometry and neighbours for the six boards
 - `Engine.vb` – win detection, exact count and simulation
 - `BoardView.vb` – draws the 16:9 board picture and handles clicks
 - `BoardForm.vb` – the board window (16:9, full screen)

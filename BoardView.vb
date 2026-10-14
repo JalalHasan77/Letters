@@ -180,7 +180,9 @@ Public Class BoardView
             Using br As New SolidBrush(_board.Teams(n.Team).Color)
                 g.FillEllipse(br, n.Center.X - r, n.Center.Y - r, 2 * r, 2 * r)
             End Using
-            Using pen As New Pen(Color.White, 3) : g.DrawEllipse(pen, n.Center.X - r, n.Center.Y - r, 2 * r, 2 * r) : End Using
+            If n.Outline Then
+                Using pen As New Pen(Color.White, 3) : g.DrawEllipse(pen, n.Center.X - r, n.Center.Y - r, 2 * r, 2 * r) : End Using
+            End If
         Next
 
         ' 5. polygon and circle cells

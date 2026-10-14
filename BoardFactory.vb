@@ -13,7 +13,6 @@ Public Module BoardFactory
 
     Public ReadOnly RedColor As Color = Color.FromArgb(210, 43, 63)
     Public ReadOnly GreenColor As Color = Color.FromArgb(30, 148, 80)
-    Public ReadOnly PinkColor As Color = Color.FromArgb(214, 58, 160)
     Public ReadOnly GoldCell As Color = Color.FromArgb(246, 196, 83)
     Public ReadOnly YellowBoard As Color = Color.FromArgb(247, 236, 92)
 
@@ -54,7 +53,8 @@ Public Module BoardFactory
         "2. Hexagons (diamond)",
         "3. Octagons & Squares",
         "4. Circles & Bars (bars are cells)",
-        "5. Circles Only (bars are links)"}
+        "5. Circles Only (bars are links)",
+        "6. Circles Only (No Bars)"}
 
     ''' <summary>True for the two hexagon boards, which can be shown in either pose.</summary>
     Public Function HasPose(model As Integer) As Boolean
@@ -84,7 +84,8 @@ Public Module BoardFactory
                 End If
             Case 2 : b = OctagonsSquares()
             Case 3 : b = CirclesAndBars(barsAreCells:=True)
-            Case Else : b = CirclesAndBars(barsAreCells:=False)
+            Case 4 : b = CirclesAndBars(barsAreCells:=False)
+            Case Else : b = CirclesNoBars()
         End Select
         Return b
     End Function
@@ -236,13 +237,13 @@ Public Module BoardFactory
     ' Truncated-square tiling: octagons where (i+j) is even, squares where it is odd.
     Private Function OctagonsSquares() As Board
         Dim b As New Board With {.Name = ModelNames(2),
-            .Description = "13 octagons + 12 squares. Pink joins top ↕ bottom, Green joins left ↔ right."}
-        SetTeam(b, 0, "Pink", PinkColor, "top ↕ bottom")
+            .Description = "13 octagons + 12 squares. Red joins top ↕ bottom, Green joins left ↔ right."}
+        SetTeam(b, 0, "Red", RedColor, "top ↕ bottom")
         SetTeam(b, 1, "Green", GreenColor, "left ↔ right")
         Dim pitch As Single = 90, w8 = CSng(pitch * Math.Sqrt(2)), sq = CSng(w8 / (1 + Math.Sqrt(2))), m As Single = 40
         b.Width = 2 * m + 4 * pitch + w8 : b.Height = b.Width
         Dim Wd = b.Width, Ht = b.Height
-        b.Zones.Add(New Zone With {.Points = {P(0, 0), P(Wd, 0), P(Wd, Ht), P(0, Ht)}, .Team = 0, .FillColor = PinkColor})
+        b.Zones.Add(New Zone With {.Points = {P(0, 0), P(Wd, 0), P(Wd, Ht), P(0, Ht)}, .Team = 0, .FillColor = RedColor})
         b.Zones.Add(New Zone With {.Points = {P(0, 0), P(Wd / 2, Ht / 2), P(0, Ht)}, .Team = 1, .FillColor = GreenColor})
         b.Zones.Add(New Zone With {.Points = {P(Wd, 0), P(Wd / 2, Ht / 2), P(Wd, Ht)}, .Team = 1, .FillColor = GreenColor})
         Dim o0 = m + w8 / 2
@@ -288,7 +289,7 @@ Public Module BoardFactory
     ' ------------------------------------------------------------ Models 4 & 5
     ' 9 large circles on a 3x3 grid, 16 small circles on a 4x4 grid, joined by
     ' horizontal / vertical bars (large-large) and diagonal bars (small-large).
-    ' Green joins top ↕ bottom, Pink joins left ↔ right.
+    ' Green joins top ↕ bottom, Red joins left ↔ right.
     Private Structure EndRef
         Public Cell As Integer      ' -1 when the end is a side of the board
         Public Team As Integer
@@ -301,12 +302,12 @@ Public Module BoardFactory
             "25 circles + 76 bars, all of them cells. A chain needs every circle and bar along it.",
             "Only the 25 circles are cells. A bar lights up when it joins two circles of the same team.")
         SetTeam(b, 0, "Green", GreenColor, "top ↕ bottom")
-        SetTeam(b, 1, "Pink", PinkColor, "left ↔ right")
+        SetTeam(b, 1, "Red", RedColor, "left ↔ right")
         Dim st As Single = 140, m As Single = 40
         b.Width = 2 * m + 4 * st : b.Height = b.Width
         Dim Wd = b.Width, Ht = b.Height
         Dim LP = Function(x As Single, y As Single) P(m + x * st, m + y * st)
-        b.Zones.Add(New Zone With {.Points = {P(0, 0), P(Wd, 0), P(Wd, Ht), P(0, Ht)}, .Team = 1, .FillColor = PinkColor})
+        b.Zones.Add(New Zone With {.Points = {P(0, 0), P(Wd, 0), P(Wd, Ht), P(0, Ht)}, .Team = 1, .FillColor = RedColor})
         b.Zones.Add(New Zone With {.Points = {P(0, 0), P(Wd, 0), P(Wd / 2, Ht / 2)}, .Team = 0, .FillColor = GreenColor})
         b.Zones.Add(New Zone With {.Points = {P(0, Ht), P(Wd, Ht), P(Wd / 2, Ht / 2)}, .Team = 0, .FillColor = GreenColor})
         Dim a0 = m, a1 = Wd - m, cut = 1.15F * st
@@ -416,6 +417,64 @@ Public Module BoardFactory
         AddToSide(b, 0, 1, small(3, 0)) : AddToSide(b, 1, 2, small(3, 0))
         AddToSide(b, 0, 2, small(0, 3)) : AddToSide(b, 1, 1, small(0, 3))
         AddToSide(b, 0, 2, small(3, 3)) : AddToSide(b, 1, 2, small(3, 3))
+        Return b
+    End Function
+
+    ' ---------------------------------------------------------------- Model 6
+    ' The same 25 circles as models 4 and 5 (9 large on a 3x3 grid, 16 small on a 4x4 grid),
+    ' but drawn large enough to touch, with no bars. Each large circle touches its 4 diagonal
+    ' small circles; the outer small circles touch the coloured semicircles on the sides.
+    ' Green joins top ↕ bottom, Red joins left ↔ right.
+    Private Function CirclesNoBars() As Board
+        Dim b As New Board With {.Name = ModelNames(5),
+            .Description = "25 touching circles, no bars. Two circles are connected when they touch. Green joins top ↕ bottom, Red joins left ↔ right."}
+        SetTeam(b, 0, "Green", GreenColor, "top ↕ bottom")
+        SetTeam(b, 1, "Red", RedColor, "left ↔ right")
+        Dim st As Single = 140, m As Single = 60
+        b.Width = 2 * m + 4 * st : b.Height = b.Width
+        Dim Wd = b.Width, Ht = b.Height
+        Dim LP = Function(x As Single, y As Single) P(m + x * st, m + y * st)
+        ' diagonal distance between a large and a small circle = st * 0.7071 = 99
+        Dim rBig As Single = 52, rSmall As Single = 47, rNotch As Single = 52
+        b.Zones.Add(New Zone With {.Points = {P(0, 0), P(Wd, 0), P(Wd, Ht), P(0, Ht)}, .Team = 1, .FillColor = RedColor})
+        b.Zones.Add(New Zone With {.Points = {P(0, 0), P(Wd, 0), P(Wd / 2, Ht / 2)}, .Team = 0, .FillColor = GreenColor})
+        b.Zones.Add(New Zone With {.Points = {P(0, Ht), P(Wd, Ht), P(Wd / 2, Ht / 2)}, .Team = 0, .FillColor = GreenColor})
+        Dim a0 = m, a1 = Wd - m, cut = 0.6F * st
+        b.Zones.Add(New Zone With {.Team = -1, .FillColor = YellowBoard, .Points = {
+            P(a0 + cut, a0), P(a1 - cut, a0), P(a1, a0 + cut), P(a1, a1 - cut),
+            P(a1 - cut, a1), P(a0 + cut, a1), P(a0, a1 - cut), P(a0, a0 + cut)}})
+        For k = 1 To 3
+            b.Notches.Add(New Notch With {.Center = LP(k, 0), .Radius = rNotch, .Team = 0, .Outline = False})
+            b.Notches.Add(New Notch With {.Center = LP(k, 4), .Radius = rNotch, .Team = 0, .Outline = False})
+            b.Notches.Add(New Notch With {.Center = LP(0, k), .Radius = rNotch, .Team = 1, .Outline = False})
+            b.Notches.Add(New Notch With {.Center = LP(4, k), .Radius = rNotch, .Team = 1, .Outline = False})
+        Next
+        Dim big(3, 3) As Integer, small(3, 3) As Integer
+        For j = 1 To 3
+            For i = 1 To 3
+                big(i, j) = b.AddCell(New Cell With {.Shape = CellShape.Circle, .Center = LP(i, j), .Radius = rBig, .EmptyColor = Color.White})
+            Next
+        Next
+        For bb = 0 To 3
+            For a = 0 To 3
+                small(a, bb) = b.AddCell(New Cell With {.Shape = CellShape.Circle, .Center = LP(a + 0.5F, bb + 0.5F), .Radius = rSmall, .EmptyColor = Color.White})
+            Next
+        Next
+        Dim labels = MixedLabels()
+        For k = 0 To 24 : b.Cells(k).Label = labels(k) : Next
+        b.InitNeighbors()
+        For j = 1 To 3
+            For i = 1 To 3
+                ' a large circle at lattice point (i, j) touches the small circles around it
+                For Each d In {(-1, -1), (0, -1), (-1, 0), (0, 0)}
+                    b.Connect(big(i, j), small(i + d.Item1, j + d.Item2))
+                Next
+            Next
+        Next
+        For k = 0 To 3
+            AddToSide(b, 0, 1, small(k, 0)) : AddToSide(b, 0, 2, small(k, 3))
+            AddToSide(b, 1, 1, small(0, k)) : AddToSide(b, 1, 2, small(3, k))
+        Next
         Return b
     End Function
 

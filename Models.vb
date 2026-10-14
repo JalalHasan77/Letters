@@ -56,6 +56,7 @@ End Class
 
 ''' <summary>A small coloured dot on the border where a chain must arrive.</summary>
 Public Class Notch
+    Public Property Outline As Boolean = True
     Public Property Center As PointF
     Public Property Radius As Single
     Public Property Team As Integer
